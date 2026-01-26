@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planilha Financeira Corrigida</title>
+    <style>
+        /* RESET BÁSICO */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif;
+            /* Degradê fixo no fundo */
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%) no-repeat fixed;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto;
+            position: relative; /* Garante que fique visível sobre o fundo */
+            z-index: 1;
+        }
+        
+        h2 { 
+            text-align: center; 
+            color: #2c3e50; 
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 0px white;
+        }
+
+        /* GRID DAS COLUNAS */
+        .grid-planejamento {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* CARDS - Removendo o blur que pode causar erro em alguns navegadores */
+        .card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+        }
+
+        .card h3 { 
+            margin-bottom: 15px; 
+            text-align: center; 
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 10px 0; }
+        
+        input {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* BOTÃO ADICIONAR */
+        .btn-add {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .bg-green { background-color: #27ae60; }
+        .bg-red { background-color: #e74c3c; }
+
+        /* --- ESTILO WINDOWS 95 (LIXEIRA) --- */
+        .btn-win95 {
+            background: #c0c0c0;
+            border-top: 2px solid #fff;
+            border-left: 2px solid #fff;
+            border-right: 2px solid #808080;
+            border-bottom: 2px solid #808080;
+            padding: 3px 6px;
+            font-family: sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-win95:active {
+            border: 2px inset #fff;
+            background: #b0b0b0;
+        }
+        .x-vermelho { color: red; }
+
+        /* RESUMO */
+        .resumo-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .total-final {
+            font-size: 1.5em;
+            border-top: 2px solid #333;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📊 Minha Planilha Financeira</h2>
+
+    <div class="grid-planejamento">
+        <div class="card">
+            <h3 style="color: #27ae60;">💰 Receitas</h3>
+            <table id="tabReceitas">
+                <tbody></tbody>
+            </table>
+            <button class="btn-add bg-green" onclick="add('tabReceitas')">+ Receita</button>
+        </div>
+
+        <div class="card">
+            <h3 style="color: #e74c3c;">💸 Despesas</h3>
+            <table id="tabDespesas">
+                <tbody></tbody>
+            </table>
+            <button class="btn-add bg-red" onclick="add('tabDespesas')">+ Despesa</button>
+        </div>
+
+        <div class="card">
+            <h3>📈 Resumo</h3>
+            <div class="resumo-item">
+                <span>Total Ganhos:</span>
+                <span id="vRec" style="color: #27ae60;">R$ 0,00</span>
+            </div>
+            <div class="resumo-item">
+                <span>Total Gastos:</span>
+                <span id="vDes" style="color: #e74c3c;">R$ 0,00</span>
+            </div>
+            <div class="resumo-item total-final">
+                <span>SALDO:</span>
+                <span id="vTotal">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function add(id) {
+        const corpo = document.querySelector(`#${id} tbody`);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" placeholder="Item" oninput="calc()"></td>
+            <td><input type="number" class="val" placeholder="0" oninput="calc()" style="width: 70px;"></td>
+            <td><button class="btn-win95" onclick="this.closest('tr').remove();calc()"><span class="x-vermelho">X</span></button></td>
+        `;
+        corpo.appendChild(tr);
+        calc();
+    }
+
+    function calc() {
+        let r = 0, d = 0;
+        document.querySelectorAll("#tabReceitas .val").forEach(i => r += parseFloat(i.value) || 0);
+        document.querySelectorAll("#tabDespesas .val").forEach(i => d += parseFloat(i.value) || 0);
+        
+        const s = r - d;
+        const f = (v) => v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+        document.getElementById("vRec").innerText = f(r);
+        document.getElementById("vDes").innerText = f(d);
+        document.getElementById("vTotal").innerText = f(s);
+        document.getElementById("vTotal").style.color = s >= 0 ? "#27ae60" : "#e74c3c";
+    }
+
+    // Começar com linhas vazias
+    window.onload = () => { add('tabReceitas'); add('tabDespesas'); };
+</script>
+
+</body>
+</html>
