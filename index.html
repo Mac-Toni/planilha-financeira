@@ -109,12 +109,20 @@
             padding-top: 15px;
             margin-top: 15px;
         }
+        #meuGrafico {
+    max-height: 300px; /* Limita a altura para o gráfico não ficar gigante */
+    margin: 0 auto;
+}
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>📊 Minha Planilha Financeira</h2>
+    <div style="text-align: center; margin-bottom: 20px;">
+    <button class="btn-win95" onclick="exportarRelatorio()">📄 Gerar Relatório Texto</button>
+    <button class="btn-win95" onclick="limparTudo()" style="margin-left: 10px;">🗑️ Limpar Tudo</button>
+</div>
 
     <div class="grid-planejamento">
         <div class="card">
@@ -150,37 +158,13 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-    function add(id) {
-        const corpo = document.querySelector(`#${id} tbody`);
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><input type="text" placeholder="Item" oninput="calc()"></td>
-            <td><input type="number" class="val" placeholder="0" oninput="calc()" style="width: 70px;"></td>
-            <td><button class="btn-win95" onclick="this.closest('tr').remove();calc()"><span class="x-vermelho">X</span></button></td>
-        `;
-        corpo.appendChild(tr);
-        calc();
-    }
+<div class="card" style="margin-top: 20px;">
+    <h3>📊 Comparativo Visual</h3>
+    <canvas id="meuGrafico" width="400" height="200"></canvas>
+</div>
 
-    function calc() {
-        let r = 0, d = 0;
-        document.querySelectorAll("#tabReceitas .val").forEach(i => r += parseFloat(i.value) || 0);
-        document.querySelectorAll("#tabDespesas .val").forEach(i => d += parseFloat(i.value) || 0);
-        
-        const s = r - d;
-        const f = (v) => v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-
-        document.getElementById("vRec").innerText = f(r);
-        document.getElementById("vDes").innerText = f(d);
-        document.getElementById("vTotal").innerText = f(s);
-        document.getElementById("vTotal").style.color = s >= 0 ? "#27ae60" : "#e74c3c";
-    }
-
-    // Começar com linhas vazias
-    window.onload = () => { add('tabReceitas'); add('tabDespesas'); };
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
